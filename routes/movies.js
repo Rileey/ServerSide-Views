@@ -6,33 +6,36 @@ import Movie from '../models/Movie.js';
 import verify from '../verifyToken.js'
 
 
-//CREATE
+//CREATE A MOVIE
+ 
 router.post('/', verify, async (req, res) => {
     // if you are the admin
     if (req.user.isAdmin) {
         // insert new movie.
         const newMovie = new Movie(req.body)
+
+        try {
+            // try saving the new movie
+            const savedMovie = await newMovie.save();
+            // if the movie has been saved return said movie.
+            res.status(200).json({success: true, data: savedMovie})
+        } catch (err) {
+            res.status(500).json(err)
+        }
     } else {
         res.status(403).json(`Only admin can make changes`)
     }
 })
 
 
-//UPDATE
+//UPDATE A MOVIE
 
 router.put('/:id', verify, async (req, res) => {
     // if you are the admin
      if (req.user.isAdmin) {
-         //if the inputed password is the same, encrypt it
-         if (req.body.password) {
-             req.body.password = CryptoJS.AES.encrypt(
-                 req.body.password,
-                 process.env.SECRET_KEY
-             ).toString();
-         }
-         //then fetch the user, using the user id.
          try {
-             const updatedUser = await User.findOneAndUpdate(req.params.id, 
+             // fetch the movie you want to update
+             const updatedMovie = await Movie.findOneAndUpdate(req.params.id, 
                 
                 // UPDATE FIRST
                 {$set: req.body},
@@ -41,72 +44,84 @@ router.put('/:id', verify, async (req, res) => {
                 {
                     new: true
                 });
-             res.status(200).json(updatedUser);
+             res.status(200).json(updatedMovie);
          } catch (err) {
              res.status(500).json(err)
          }
      } else {
-         res.status(403).json(`You can update only your account`)
+         res.status(403).json(`Only admin can make changes`)
      }
 })
 
 
 
-//DELETE
+//DELETE A MOVIE
 
 router.delete('/:id', verify, async (req, res) => {
-    // if the your user id is the same as the the one you are requesting or you are the admin
-    if (req.user.id === req.params.id || req.user.isAdmin) {
-        //fetch the user using the user id and delete the user.
+    // if you are the admin
+    if (req.user.isAdmin) {
+        //fetch the movie using the movie id and delete the user.
         try {
-            await User.findByIdAndDelete(req.params.id);
-            res.status(200).json(`user with id ${req.params.id} has been deleted.`);
+            await Movie.findByIdAndDelete(req.params.id);
+            res.status(200).json(`The movie with id ${req.params.id} has been deleted.`);
         } catch (err) {
             res.status(500).json(err)
         }
     } else {
-        //if the user id is not the same as the one requested or you are not the admin,
-        //then return this response 'You can only delete your account'
-        res.status(403).json(`You can delete only your account`)
+        //if the movie id is not the same as the one requested,
+        //then return this response 'You can only delete your account' 
+        res.status(403).json(`Only admin can make changes`)
     }
 })
 
-//GET
+//GET A MOVIE
 
 router.get('/find/:id', async (req, res) => {
-    //fetch the user using the user id.
+    //fetch the movie using the movie id.
         try {
-            const user = await User.findById(req.params.id);
+            const movie = await Movie.findById(req.params.id);
 
-            //single out the password and remove it from the rest of the information displayed.
-            const { password, ...info } = user._doc
-            //return the user's information
-            res.status(200).json(info);
+            //return the movie 
+            res.status(200).json(movie);
         } catch (err) {
             //catch any errors.
             res.status(500).json(err)
         }
 })
 
-//GET ALL
+//GET A RANDOM MOVIE
 
-router.get('/', verify, async (req, res) => {
-    const query = req.query.new;
-    // if you are the admin
-    if (req.user.isAdmin) {
-        //get the user using the user id and delete the user.
+router.get('/random', verify, async (req, res) => {
+    // name the query "type"
+    const type = req.query.type;
+    let movie;
         try {
-            //fetch the last ten users if there is a query, if not fetch all users excluding you
-            const users = query ? await User.find().sort({_id: -1}).limit(10) : await User.find()
-            res.status(200).json(users);
+            //if the query type is series
+            if (type === 'series'){
+                // fetch one
+                movie = await Movie.aggregate([
+                    { 
+                        $match: { isSeries: true },
+                    },
+                    {
+                        $sample: { size: 1 }
+                    }
+                ]);
+            } else {
+                // else fetch a movie
+                movie = await Movie.aggregate([
+                    { 
+                        $match: { isSeries: false },
+                    },
+                    {
+                        $sample: { size: 1 }
+                    }
+                ]);
+            }
+            res.status(200).json(movie)
         } catch (err) {
             res.status(500).json(err)
         }
-    } else {
-        //if you are not the admin,
-        //then return this response 'Access to users denied '
-        res.status(403).json(`Access to users denied!`)
-    }
 })
 
 
@@ -148,6 +163,25 @@ router.get('/stats', async (req, res) => {
         res.status(200).json(data)
     } catch (err) {
         res.status(500).json(err)
+    }
+})
+
+
+//GET ALL MOVIES
+
+router.get('/', verify, async (req, res) => {
+    // if you are the admin
+    if (req.user.isAdmin) {
+        //fetch the movie using the movie id and delete the user.
+        try {
+            const movies = await Movie.find();
+            res.status(200).json(movies.reverse());  //.reverse sends the movies in from the last one created.
+        } catch (err) {
+            res.status(500).json(err)
+        }
+    } else {
+        //if user is not admin, return: 'only admin can make changes' 
+        res.status(403).json(`Only admin can make changes`)
     }
 })
 

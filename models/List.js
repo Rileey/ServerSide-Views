@@ -1,6 +1,6 @@
-import { Schema, model } from 'mongoose';
+import mongoose from 'mongoose';
 
-const ListSchema = new Schema({
+const ListSchema = new mongoose.Schema({
     title: {
         type: String,
         required: true,
@@ -8,6 +8,9 @@ const ListSchema = new Schema({
     },
      description: {
         type: String
+     },
+     type: {
+         type: String
      },
      genre: {
          type: String
@@ -20,4 +23,6 @@ const ListSchema = new Schema({
     timestamps: true 
 })
 
-module.export = model("List", ListSchema)
+const List = mongoose.model("List", ListSchema)
+
+export default List;

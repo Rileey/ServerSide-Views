@@ -3,6 +3,8 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import authRoute from './routes/auth.js'
 import userRoute from './routes/users.js'
+import movieRoute from './routes/movies.js'
+import listRoute from './routes/lists.js'
 
 const app = express();
 dotenv.config();
@@ -21,6 +23,8 @@ mongoose.connect(process.env.MONGO_URL, {
 
 app.use("/api/auth", authRoute);
 app.use("/api/users", userRoute)
+app.use("/api/movies", movieRoute);
+app.use("/api/lists", listRoute);
 
 app.get('/', (req, res)=> {
     res.send('I am a clown')
