@@ -2,38 +2,45 @@ import mongoose from 'mongoose';
 
 const MovieSchema = new mongoose.Schema({
     title: {
-        type: String,
-        required: true,
-        unique: true
+    type: String,
     },
-     description: {
-        type: String
-     },
-     image: {
-        type: String
-     },
+    image: {
+        type: Array
+    },
      thumbnail: {
-        type: String
-     },
+        type: Array
+    },
      trailer: {
-        type: String
-     },
-     video: {
-         type: String
-     },
+        type: Array
+    },
      year: {
          type: String
-     },
+    },
      ageLimit: {
          type: Number
-     },
+    },
+     description:{
+        type: String
+    },
+     duration:{
+         type: String
+    },
+     director: {
+        type: String
+    },
      genre: {
          type: String
-     },
-     isSeries: {
-         type: Boolean,
-         default: false
-     }
+    },
+    content: {
+        type: Array
+    },
+    public_id: {
+        type: Array
+    },
+    isSeries: {
+        type: Boolean,
+        default: false,
+    }
 }, 
 {
     timestamps: true 
@@ -42,3 +49,37 @@ const MovieSchema = new mongoose.Schema({
 const Movie = mongoose.model("Movie", MovieSchema)
 
 export default Movie;
+
+
+
+// title: {
+//     type: String,
+//     unique: true
+// },
+//  description: {
+//     type: String
+//  },
+//  image: {
+//     type: String
+//  },
+//  thumbnail: {
+//     type: String
+//  },
+//  trailer: {
+//     type: String
+//  },
+//  video: {
+//      type: String
+//  },
+//  year: {
+//      type: String
+//  },
+//  ageLimit: {
+//      type: Number
+//  },
+//  duration:{
+//      type: String
+//  },
+//  director: {
+//     type: String
+//  },

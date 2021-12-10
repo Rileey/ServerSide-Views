@@ -16,7 +16,7 @@ const ListSchema = new mongoose.Schema({
          type: String
      },
      content: {
-         type: Array,
+         type: Array
      }
 }, 
 {

@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 
 const UserSchema = new mongoose.Schema({
-    username: {
-        type: String,
+    phoneNumber: {
+        type: Number,
         required: true,
         unique: true
     },
@@ -15,6 +15,10 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true,
      },
+     confirmPassword: {
+        type: String,
+        required: true,
+     },
      profilePicture: {
         type: String,
         default: ""
@@ -22,6 +26,12 @@ const UserSchema = new mongoose.Schema({
      isAdmin: {
         type: Boolean,
         default: false
+     },
+     fullName: {
+        type: String
+     },
+     address: {
+        type: String
      },
 }, 
 {
