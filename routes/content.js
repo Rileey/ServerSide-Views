@@ -13,7 +13,12 @@ import verify from '../verifyToken.js'
 
 //CREATE A MOVIE
 
-router.post('/', SUpload.single('video'), verify, async (req, res) => {
+router.post('/', 
+// SUpload.single('video'), 
+SUpload.fields([{
+    name: 'video', maxCount: 1
+  }]),
+verify, async (req, res) => {
 
     const { 
         title, 
@@ -24,8 +29,9 @@ router.post('/', SUpload.single('video'), verify, async (req, res) => {
         director,
         genre,
      } = req.body;
+     if (req.user.isAdmin) {
     try {
-        if (!req.file){
+        if (!req.files){
             return res.status(400).json({message: "We need a file"});
         }
             // try {
@@ -56,7 +62,7 @@ router.post('/', SUpload.single('video'), verify, async (req, res) => {
                             genre,
                         });
 
-                        if (req.file) { // if you are adding multiple files at a go
+                        if (req.files) { // if you are adding multiple files at a go
                             const video = []; // array to hold the video urls // array of videos
                             const vid = req.files.video
                             for (const file of vid) {
@@ -73,12 +79,12 @@ router.post('/', SUpload.single('video'), verify, async (req, res) => {
 
                             const savedContent = await newContent.save()
                                res.status(200).json({message: 'success', data: savedContent})
-            // } catch (err) {
-            //     console.log(err.message);
-            //     return res.status(400).json({message: "cloudinary error", error: err.message})
-            // }
-    
-    } catch (err) {
+            } catch (err) {
+                console.log(err.message);
+                return res.status(400).json({message: "cloudinary error", error: err.message})
+            }
+
+    }else {
         console.log(err.message);
         res.status(500).json({message: "Server Error"})
     }
