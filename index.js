@@ -7,6 +7,10 @@ import userRoute from './routes/users.js'
 import movieRoute from './routes/movies.js'
 import listRoute from './routes/lists.js'
 import contentRoute from './routes/content.js'
+import postRoute from './routes/post.js'
+import commentRoute from './routes/comment.js'
+import profileRoute from './routes/profile.js'
+
 
 const app = express();
 dotenv.config();
@@ -31,6 +35,9 @@ app.use("/api/users", userRoute)
 app.use("/api/movies", movieRoute);
 app.use("/api/lists", listRoute);
 app.use("/api/content", contentRoute);
+app.use("/api/posts", postRoute);
+app.use("/api/comments", commentRoute);
+app.use("/api/profile", profileRoute);
 
 app.get('/', (req, res)=> {
     res.send('I am a clown')

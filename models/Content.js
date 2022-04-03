@@ -4,12 +4,22 @@ const ContentSchema = new mongoose.Schema({
    title: {
     type: String,
     required: true,
+    unique:false
 },
- video: {
+ videoHD: {
      type: Array
  },
+ videoFHD: {
+    type: Array
+},
+ video2k: {
+    type: Array
+},
+ video4k: {
+    type: Array
+},
  year: {
-     type: String
+     type: Number
  },
  ageLimit: {
      type: Number
@@ -25,7 +35,7 @@ const ContentSchema = new mongoose.Schema({
  },
  genre: {
      type: String
- },
+ }
 }, 
 {
     timestamps: true 

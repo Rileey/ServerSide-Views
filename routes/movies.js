@@ -21,7 +21,7 @@ router.post('/',
   }, {
     name: 'trailer', maxCount: 1
   }]),
- verify, async (req, res) => {
+ async (req, res) => {
 
     
 
@@ -39,10 +39,10 @@ router.post('/',
         content
      } = req.body;
 
-    if (req.user.isAdmin) {
+    // if (req.user.isAdmin) {
             try {
                 if (!req.files){
-                    console.log(req.file, 'files');
+                    // console.log(req.file, 'files');
                     const error = new Error('No File')
                     console.log(error)
                     return res.status(400).json({message: "We need a file"});
@@ -55,8 +55,8 @@ router.post('/',
             //         folder: "views"
             //     })
                 
-                let newMovie = new Movie({
-                    title, 
+                let newMovie = await Movie.create({
+                    title,
                     description, 
                     year, 
                     ageLimit,
@@ -64,11 +64,20 @@ router.post('/',
                     director,
                     genre,
                     isSeries,
-                    content, 
-                    // image: result.secure_url,
-                    // public_id: result.public_id,
+                    content
                 });
 
+                    
+                    // newMovie.content = [content]
+                    // await newMovie.save()
+                    // const content = []
+                    // for (const cont of content){
+                    //     // content.push(cont)
+                    //     console.log(cont, 'vvvvvvvvvvvvv')
+                    // }
+                    newMovie.content = content
+                
+                console.log(content, '$$$$$$$$$$£££££££££££&&&&&&&&&')
                 if (req.files) { // if you are adding multiple files at a go
                     const image = []; // array to hold the image urls
                     const files = req.files.image; // array of images
@@ -83,6 +92,7 @@ router.post('/',
 
                     const thumbnail = []; // array to hold the thumbnail urls // array of thumbnails
                     const pic = req.files.thumbnail
+                    // console.log(pic)
                     for (const file of pic) {
                         const { path, filename } = file;
                         thumbnail.push({
@@ -93,7 +103,7 @@ router.post('/',
 
                     
                     const trailer = []; // array to hold the thumbnail urls // array of thumbnails
-                    const tra = req.files.thumbnail
+                    const tra = req.files.trailer
                     for (const file of tra) {
                         const { path, filename } = file;
                         trailer.push({
@@ -102,6 +112,8 @@ router.post('/',
                         });
                     };
 
+                    
+                    
 
                 // console.log(req.files.thumbnail, 'pppppppppp')
                 // console.log(req.files.image, 'YYYYYYYY')
@@ -122,6 +134,8 @@ router.post('/',
                     newMovie.thumbnail = thumbnail
                     newMovie.trailer = trailer
 
+                    // console.log(trailer, newMovie)
+
                     // const reduce = par => {
                     //     return par.reduce((acc, str) => {
                     //         let char = str.charAt(0).toLowerCase();
@@ -132,7 +146,9 @@ router.post('/',
                     // }
 
                     // console.log(reduce(image))
+                    console.log(newMovie, '6666666666666')
                 }
+                    
                     const savedMovie = await newMovie.save();
                     return res.status(201).json({ savedMovie });
         
@@ -160,64 +176,33 @@ router.post('/',
                 // const savedMovie = await newMovie.save()
                 // return res.status(200).json({message: 'success', data: savedMovie})
             } catch (err) {
-                console.log(err);
-                return res.status(400).json({message: "cloudinary error", error: err.message})
+                console.log(err, '$$$$$$$');
+                return res.status(400).json({message: "cloudinary error", error: err})
             }
-        } else {
-            res.status(500).json({message: "Server Error"})
-        }
+        // } else {
+        //     res.status(500).json({message: "Server Error"})
+        // }
 });
 
 
-// router.post('/', SUpload.single('image'), verify, async (req, res) => {
-// try {
-//     if (!req.file){
-//         res.status(400).json({message: "We need a file"});
-//     }
+// router.put('/:id', verify, async (req, res) => {
+//     if (req.user.isAdmin){
 //         try {
-//             const result = await cloudinary.uploader.upload(req.file.path, {
-//                 resource_type: "auto"
-//             })
-//             let newMovie = new Movie({
-//                         // name: req.body.name,
-//                         image: result.secure_url,
-//                         public_id: result.public_id
-//                     });
-//                            await newMovie.save()
-//                            res.json(newMovie)
-//         } catch (err) {
-//             console.log(err.message);
-//             res.status(400).json({message: "cloudinary error"})
-//         }
+//             const updatedMovie = await Movie.findByIdAndUpdate(req.params.id,
 
-// } catch (err) {
-//     console.log(err.message);
-//     res.status(500).json({message: "Server Error"})
-// }
-// })
-
-
-
-
-
-router.put('/:id', verify, async (req, res) => {
-    if (req.user.isAdmin){
-        try {
-            const updatedMovie = await Movie.findByIdAndUpdate(req.params.id,
-
-                // UPDATE FIRST
-                {$set: req.body},
+//                 // UPDATE FIRST
+//                 {$set: req.body},
                 
-                //RETURN NEW USER
-                {new: true});
-                return res.status(200).json(updatedMovie)
-        } catch (err) {
-            console.log(err.message)
-        }
-    } else {
-        res.status(403).json(`Only Admin can make changes`)
-    }
-})
+//                 //RETURN NEW USER
+//                 {new: true});
+//                 return res.status(200).json(updatedMovie)
+//         } catch (err) {
+//             console.log(err.message)
+//         }
+//     } else {
+//         res.status(403).json(`Only Admin can make changes`)
+//     }
+// })
 
 
 
@@ -233,53 +218,39 @@ router.put('/:id',
   }, {
     name: 'trailer', maxCount: 1
   }]),
- verify, async (req, res) => {
+ async (req, res) => {
+
+
+    const { 
+        title, 
+        description, 
+        year, 
+        ageLimit,
+        duration,
+        director,
+        genre,
+        isSeries,
+        content
+     } = req.body;
     // if you are the admin
-     if (req.user.isAdmin) {
+    //  if (req.user.isAdmin) {
          try {
              // fetch the movie you want to update
              let updatedMovie = await Movie.findById(req.params.id)
 
             if (req.files) {
-             await cloudinary.uploader.destroy(updatedMovie.image[0].public_id,
-             {
-                 invalidate: true
-             }, 
-             function(error, result) {
-                 console.log(result, error)
-             })
-             await cloudinary.uploader.destroy(updatedMovie.thumbnail[0].public_id,
-                {
-                    invalidate: true
-                }, 
-                function(error, result) {
-                    console.log(result, error)
-                })
-                await cloudinary.uploader.destroy(updatedMovie.trailer[0].public_id,
-                    {
-                        invalidate: true
-                    }, 
-                    function(error, result) {
-                        console.log(result, error)
-                    })
-             
-
-             const data = {
-                title: req.body.title || updatedMovie.title,
-                description: req.body.description || updatedMovie.description,
-                year: req.body.year || updatedMovie.year,
-                ageLimit: req.body.ageLimit || updatedMovie.ageLimit,
-                description: req.body.description || updatedMovie.description,
-                duration: req.body.duration || updatedMovie.duration,
-                director: req.body.director || updatedMovie.director,
-                genre: req.body.genre || updatedMovie.genre,
-                isSeries: req.body.isSeries || updatedMovie.isSeries,
-                content: req.body.content || updatedMovie.content,
-                // public_id: result.public_id || updatedMovie.public_id
-             }
+                await cloudinary.api.delete_resources([updatedMovie.image[0].public_id, updatedMovie.thumbnail[0].public_id],
+                    function (err, result) {console.log(result, err, 'image')
+                   })
+                 
+                await cloudinary.api.delete_resources([updatedMovie.trailer[0].public_id], {
+                    resource_type: 'video'
+                },
+                    function (err, result) {console.log(result, err, 'trailer')
+                   })
 
 
-                const image = []; // array to hold the image urls
+                   const image = []; // array to hold the image urls
                 const files = req.files.image; // array of images
                 for (const file of files) {
                     const { path, filename } = file;
@@ -289,7 +260,6 @@ router.put('/:id',
                     });
                 };
 
-                console.log(image)
 
                     const thumbnail = []; // array to hold the thumbnail urls // array of thumbnails
                     const pic = req.files.thumbnail
@@ -303,7 +273,7 @@ router.put('/:id',
 
 
                     const trailer = []; // array to hold the thumbnail urls // array of thumbnails
-                    const tra = req.files.thumbnail
+                    const tra = req.files.trailer
                     for (const file of tra) {
                         const { path, filename } = file;
                         trailer.push({
@@ -311,12 +281,28 @@ router.put('/:id',
                             public_id: filename
                         });
                     };
-            
-             updatedMovie.image = image
-             updatedMovie.thumbnail = thumbnail
-             updatedMovie.trailer = trailer
 
+                    updatedMovie.image = image
+                    updatedMovie.thumbnail = thumbnail
+                    updatedMovie.trailer = trailer
              
+
+             const data = {
+                title: title || updatedMovie.title,
+                description: description || updatedMovie.description,
+                year: year || updatedMovie.year,
+                ageLimit: ageLimit || updatedMovie.ageLimit,
+                description: description || updatedMovie.description,
+                duration: duration || updatedMovie.duration,
+                director: director || updatedMovie.director,
+                genre: genre || updatedMovie.genre,
+                isSeries: isSeries || updatedMovie.isSeries,
+                content: content || updatedMovie.content,
+                trailer: trailer || updatedMovie.trailer,
+                image: image || updatedMovie.image,
+                thumbnail: thumbnail || updatedMovie.thumbnail
+                // public_id: result.public_id || updatedMovie.public_id
+             }
 
                 // UPDATE FIRST
                updatedMovie = await Movie.findByIdAndUpdate(req.params.id, {
@@ -327,6 +313,7 @@ router.put('/:id',
                     new: true
                 });
                 console.log(updatedMovie)
+                console.log(updatedMovie.trailer)
              return res.status(200).json({result: updatedMovie});
             } else {
                 try {
@@ -345,9 +332,9 @@ router.put('/:id',
          } catch (err) {
              res.status(500).json({message: err})
          }
-     } else {
-         res.status(403).json(`Only admin can make changes`)
-     }
+    //  } else {
+    //      res.status(403).json(`Only admin can make changes`)
+    //  }
 })
 
 
@@ -371,43 +358,39 @@ router.put('/:id',
 //     }
 // })
 
-router.delete('/:id', verify, async (req, res) => {
+router.delete('/:id', async (req, res) => {
     // if you are the admin
-    if (req.user.isAdmin) {
+    // if (req.user.isAdmin) {
         //fetch the movie using the movie id and delete the user.
         try {
             let movie = await Movie.findById(req.params.id);
-            await cloudinary.uploader.destroy(movie.image[0].public_id,
-                {
-                    invalidate: true
-                }, 
-                function(error, result) {
-                    console.log(result, error)
-                })
-                await cloudinary.uploader.destroy(movie.thumbnail[0].public_id,
-                   {
-                       invalidate: true
-                   }, 
-                   function(error, result) {
-                       console.log(result, error)
+            if(movie.image){
+                await cloudinary.api.delete_resources([movie.image[0].public_id],
+                    function (err, result) {console.log(result, err, 'mad thing')
                    })
-                   await cloudinary.uploader.destroy(movie.trailer[0].public_id,
-                       {
-                           invalidate: true
-                       }, 
-                       function(error, result) {
-                           console.log(result, error)
-                       })
+            } else if (movie.thumbnail){
+                await cloudinary.api.delete_resources([movie.thumbnail[0].public_id],
+                    function (err, result) {console.log(result, err, 'mad thing')
+                   })
+            } else if (movie.trailer){
+                await cloudinary.api.delete_resources([movie.trailer[0].public_id], {
+                    resource_type: 'video'
+                },
+                    function (err, result) {console.log(result, err, 'trailer')
+                   })
+            } else {
+                return movie
+            }
             await Movie.findByIdAndDelete(req.params.id)
-            res.status(200).json(`The Movie with id ${req.params.id} has been deleted.`, {deleted: movie});
+            res.status(200).json({message: `The Movie with id ${req.params.id} has been deleted.`, deleted: movie});
         } catch (err) {
             res.status(500).json(err)
         }
-    } else {
-        //if the Content id is not the same as the one requested,
-        //then return this response 'You can only delete your account' 
-        res.status(403).json(`Only admin can make changes`)
-    }
+    // } else {
+    //     //if the Content id is not the same as the one requested,
+    //     //then return this response 'You can only delete your account' 
+    //     res.status(403).json(`Only admin can make changes`)
+    // }
 })
 
 
@@ -417,8 +400,13 @@ router.delete('/:id', verify, async (req, res) => {
 router.get('/find/:id', async (req, res) => {
     //fetch the movie using the movie id.
         try {
-            const movie = await Movie.findById(req.params.id);
+            const movie = await Movie.findById(req.params.id)
+            .populate({
+                path: 'content',
+                select: 'title videoHD description ageLimit duration'
+            });
 
+            
             //return the movie 
             res.status(200).json(movie);
         } catch (err) {
@@ -464,7 +452,7 @@ router.get('/find/:id', async (req, res) => {
 // })
 
 
-router.get('/random', verify, async (req, res) => {
+router.get('/random', async (req, res) => {
     const type = req.query.type
     let movie;
     try {
@@ -488,7 +476,7 @@ router.get('/random', verify, async (req, res) => {
 
 // GET RANDOM MOVIES --- FEATURED
 
-router.get('/featured', verify, async (req, res) => {
+router.get('/featured', async (req, res) => {
     // name the query "type"
     let movie;
         try {
@@ -551,17 +539,13 @@ router.get('/stats', async (req, res) => {
 
 
 
-router.get('/', verify, async (req, res) => {
-    if (req.user.isAdmin) {
+router.get('/', async (req, res) => {
         try {
             const movies = await Movie.find();
             res.status(200).json(movies.reverse())
         } catch (err) {
             res.status(500).json(err.message)
         }
-    } else {
-        res.status(403).json(`Only admin can make changes`)
-    }
 })
 
 

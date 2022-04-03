@@ -11,14 +11,19 @@ import Upload from '../utils/multer.js';
 import verify from '../verifyToken.js'
 
 
-//CREATE A MOVIE
+
 
 router.post('/', 
 // SUpload.single('video'), 
 SUpload.fields([{
-    name: 'video', maxCount: 1
-  }]),
-verify, async (req, res) => {
+    name: 'videoHD', maxCount: 1
+  }, {
+    name: 'videoFHD', maxCount: 1
+  }, {
+    name: 'video2k', maxCount: 1
+  }, {
+    name: 'video4k', maxCount: 1
+  }]), async (req, res) => {
 
     const { 
         title, 
@@ -29,7 +34,7 @@ verify, async (req, res) => {
         director,
         genre,
      } = req.body;
-     if (req.user.isAdmin) {
+    //  if (req.user.isAdmin) {
     try {
         if (!req.files){
             return res.status(400).json({message: "We need a file"});
@@ -62,32 +67,88 @@ verify, async (req, res) => {
                             genre,
                         });
 
-                        if (req.files) { // if you are adding multiple files at a go
-                            const video = []; // array to hold the video urls // array of videos
-                            const vid = req.files.video
+                        // console.log(req.files, '&&&')
+                        if (req.files.videoHD) { // if you are adding multiple files at a go
+                            const videoHD = []; // array to hold the video urls // array of videos
+                            const vid = req.files.videoHD
+                            // if(!vid){
+                            //     return videoHD
+                            // } else {
                             for (const file of vid) {
                             const { path, filename } = file;
-                            video.push({
+                            videoHD.push({
                                 video: path,
                                 public_id: filename
                             });
                         };
+                        newContent.videoHD = videoHD; // add the urls to object
+                        console.log(videoHD)
+                    }
 
-                            newContent.video = video; // add the urls to object
+                    if (req.files.videoFHD){
+                        const videoFHD = []; // array to hold the video urls // array of videos
+                        const vid2 = req.files.videoFHD
+                        // if (!vid2){
+                        //     return videoFHD
+                        // } else {
+                        for (const file of vid2) {
+                        const { path, filename } = file;
+                        videoFHD.push({
+                            video: path,
+                            public_id: filename
+                        });
+                    };
+                    newContent.videoFHD = videoFHD; // add the urls to object
+                        console.log(videoFHD)
+                        }
 
+
+                    if (req.files.video2k){
+                        const video2k = []; // array to hold the video urls // array of videos
+                        const vid3 = req.files.video2k
+                        // if (!vid3){
+                        //     return video2k
+                        // } else {
+                        for (const file of vid3) {
+                        const { path, filename } = file;
+                        video2k.push({
+                            video: path,
+                            public_id: filename
+                        });
+                    };
+                    newContent.video2k = video2k; // add the urls to object
+                        console.log(video2k)
+                        }
+
+
+                    if (req.files.video4k){
+                        const video4k = []; // array to hold the video urls // array of videos
+                        const vid4 = req.files.video4k
+                        // if (!vid4){
+                        //     return video4k
+                        // } else {
+                        for (const file of vid4) {
+                        const { path, filename } = file;
+                        video4k.push({
+                            video: path,
+                            public_id: filename
+                        });
+                    };
+                    newContent.video4k = video4k; // add the urls to object
+                        console.log(video4k)
                         }
 
                             const savedContent = await newContent.save()
+                            console.log(savedContent)
                                res.status(200).json({message: 'success', data: savedContent})
             } catch (err) {
                 console.log(err.message);
                 return res.status(400).json({message: "cloudinary error", error: err.message})
             }
 
-    }else {
-        console.log(err.message);
-        res.status(500).json({message: "Server Error"})
-    }
+    // }else {
+    //     res.status(500).json({message: "Server Error"})
+    // }
 });
 
 
@@ -117,30 +178,180 @@ verify, async (req, res) => {
 
 //UPDATE CONTENT
 
-router.put('/:id', verify, Upload.single('video'), async (req, res) => {
+router.put('/:id', SUpload.fields([{
+    name: 'videoHD', maxCount: 1
+  }, {
+    name: 'videoFHD', maxCount: 1
+  }, {
+    name: 'video2k', maxCount: 1
+  }, {
+    name: 'video4k', maxCount: 1
+  }]), async (req, res) => {
     // if you are the admin
-     if (req.user.isAdmin) {
+    //  if (req.user.isAdmin) {
          try {
              // fetch the movie you want to update
              let updatedContent = await Content.findById(req.params.id) 
-             await cloudinary.uploader.destroy(updatedContent.public_id, { resource_type: "video", 
-             function(err, result)
-             {console.log( err, result) }})
-             const result = await cloudinary.uploader.upload(req.file.path, {
-                resource_type: "video",
-                folder: "views"
-            });
+            //  await cloudinary.uploader.destroy(updatedContent.public_id, { resource_type: "video", 
+            //  function(err, result)
+            //  {console.log( err, result) }})
+            //  const result = await cloudinary.uploader.upload(req.file.path, {
+            //     resource_type: "video",
+            //     folder: "views"
+            // });
+
+            const { 
+                title, 
+                description, 
+                year, 
+                ageLimit,
+                duration,
+                director,
+                genre,
+             } = req.body;
+             console.log(updatedContent.videoHD, req.files, '$$$$££££')
+            if (!req.files) {
+                return updatedContent
+            } else if (req.files) {
+                let videoHD = []
+                if(!req.files.videoHD){
+                    videoHD = updatedContent.videoHD
+                }else if(updatedContent.videoHD){
+                    await cloudinary.api.delete_resources([updatedContent.videoHD[0].public_id], {
+                        resource_type: 'video'
+                    },
+                        function (err, result) {console.log(result, err, 'hd')
+                       })
+                    const HDfiles = req.files.videoHD;
+                    for (const file of HDfiles) {
+                        const { path, filename } = file;
+                        videoHD.push({
+                            video: path,
+                            public_id: filename
+                        });
+                    }
+                    updatedContent.videoHD = videoHD
+                } else {
+                    const HDfiles = req.files.videoHD;
+                    for (const file of HDfiles) {
+                        const { path, filename } = file;
+                        videoHD.push({
+                            video: path,
+                            public_id: filename
+                        });
+                    }
+                    updatedContent.videoHD = videoHD
+                }
+                
+                let videoFHD = []
+                if(!req.files.videoFHD){
+                    videoFHD = updatedContent.videoFHD
+                }else if (updatedContent.videoFHD){
+                    await cloudinary.api.delete_resources([updatedContent.videoFHD[0].public_id], {
+                        resource_type: 'video'
+                    },
+                        function (err, result) {console.log(result, err, 'fhd')
+                       })
+                            const FHDfiles = req.files.videoFHD;
+                            
+                            for (const file of FHDfiles) {
+                                const { path, filename } = file;
+                                videoFHD.push({
+                                    video: path,
+                                    public_id: filename
+                                });
+                            }   
+                            updatedContent.videoFHD = videoFHD
+                } else {
+                            const FHDfiles = req.files.videoFHD;
+                            
+                            for (const file of FHDfiles) {
+                                const { path, filename } = file;
+                                videoFHD.push({
+                                    video: path,
+                                    public_id: filename
+                                });
+                            }   
+                            updatedContent.videoFHD = videoFHD
+                }
+                
+                    
+                let video2k = []
+                if(!req.files.video2k){
+                    video2k = updatedContent.video2k
+                }else if (updatedContent.video2k){
+                    await cloudinary.api.delete_resources([updatedContent.video2k[0].public_id], {
+                            resource_type: 'video'
+                        },
+                            function (err, result) {console.log(result, err, '2k')
+                           })
+                        const kfiles = req.files.video2k;
+                        for (const file of kfiles) {
+                            const { path, filename } = file;
+                            video2k.push({
+                                video: path,
+                                public_id: filename
+                            });
+                        }    
+                        updatedContent.video2k = video2k   
+                } else {
+                    const kfiles = req.files.video2k;
+                    for (const file of kfiles) {
+                        const { path, filename } = file;
+                        video2k.push({
+                            video: path,
+                            public_id: filename
+                        });
+                    }    
+                    updatedContent.video2k = video2k   
+                }
+                        
+                let video4k = []
+                if(!req.files.video4k){
+                    video4k = updatedContent.video4k
+                }else if (updatedContent.video4k){
+                    await cloudinary.api.delete_resources([updatedContent.video4k[0].public_id], {
+                        resource_type: 'video'
+                    },
+                        function (err, result) {console.log(result, err, '4k')
+                       })
+                           const nfiles = req.files.video4k;
+                           for (const file of nfiles) {
+                               const { path, filename } = file;
+                               video4k.push({
+                                   video: path,
+                                   public_id: filename
+                               });
+                           }  
+                           updatedContent.video4k = video4k 
+                } else {
+                           const nfiles = req.files.video4k;
+                           for (const file of nfiles) {
+                               const { path, filename } = file;
+                               video4k.push({
+                                   video: path,
+                                   public_id: filename
+                               });
+                           }  
+                           updatedContent.video4k = video4k 
+                }
+                               
+                            
+
              const data = {
-                title: req.body.title || updatedContent.title,
-                description: req.body.description || updatedContent.description,
-                year: req.body.year || updatedContent.year,
-                ageLimit: req.body.ageLimit || updatedContent.ageLimit,
-                duration: req.body.duration || updatedContent.duration,
-                description: req.body.duration || updatedContent.description,
-                director: req.body.director || updatedContent.director,
-                genre: req.body.genre || updatedContent.genre,
-                video: result.secure_url || updatedContent.secure_url,
-                public_id: result.public_id || updatedContent.public_id
+                title: title || updatedContent.title,
+                description: description || updatedContent.description,
+                year: year || updatedContent.year,
+                ageLimit: ageLimit || updatedContent.ageLimit,
+                duration: duration || updatedContent.duration,
+                description: description || updatedContent.description,
+                director: director || updatedContent.director,
+                genre: genre || updatedContent.genre,
+                videoHD: videoHD || updatedContent.videoHD,
+                videoFHD: videoFHD || updatedContent.videoFHD,
+                video2k: video2k || updatedContent.video2k,
+                video4k: video4k || updatedContent.video4k
+                // public_id: result.public_id || updatedContent.public_id
              }
                 // UPDATE FIRST
                updatedContent = await Content.findByIdAndUpdate(req.params.id, {
@@ -150,40 +361,100 @@ router.put('/:id', verify, Upload.single('video'), async (req, res) => {
                 {
                     new: true
                 });
+                console.log(updatedContent)
              res.status(200).json({result: updatedContent});
+            } else {
+                try{
+                    const updatedContent = await Content.findByIdAndUpdate(req.params.id,
+                    
+                    {$set: req.body},
+
+                    {new: true});
+                    return res.status(200).json(updatedContent)
+                    } catch (err){
+                        console.log(err.message)
+                    }
+            }
          } catch (err) {
              res.status(500).json({message: err})
              console.log(err)
          }
-     } else {
-         res.status(403).json(`Only admin can make changes`)
-     }
+    //  } else {
+    //      res.status(403).json(`Only admin can make changes`)
+    //  }
 })
 
 
 
 //DELETE A CONTENT
 
-router.delete('/:id', verify, async (req, res) => {
+// router.delete('/:id', verify, async (req, res) => {
+//     // if you are the admin
+//     if (req.user.isAdmin) {
+//         //fetch the movie using the movie id and delete the user.
+//         try {
+//             let content = await Content.findById(req.params.id);
+//             console.log(content.public_id)
+//             await cloudinary.uploader.destroy(content.public_id, { resource_type: "video", 
+//             function(err, result)
+//             {console.log( err, result) }})
+//             await content.remove()
+//             res.status(200).json(`The Content with id ${req.params.id} has been deleted.`);
+//         } catch (err) {
+//             res.status(500).json(err)
+//         }
+//     } else {
+//         //if the Content id is not the same as the one requested,
+//         //then return this response 'You can only delete your account' 
+//         res.status(403).json(`Only admin can make changes`)
+//     }
+// })
+
+
+router.delete('/:id', async (req, res) => {
     // if you are the admin
-    if (req.user.isAdmin) {
+    // if (req.user.isAdmin) {
         //fetch the movie using the movie id and delete the user.
         try {
             let content = await Content.findById(req.params.id);
-            console.log(content.public_id)
-            await cloudinary.uploader.destroy(content.public_id, { resource_type: "video", 
-            function(err, result)
-            {console.log( err, result) }})
-            await content.remove()
-            res.status(200).json(`The Content with id ${req.params.id} has been deleted.`);
+            if(content.videoHD){
+                await cloudinary.api.delete_resources([content.videoHD[0].public_id], {
+                    resource_type: 'video'
+                },
+                     function (err, result) {console.log(result, err, 'deleted videoHD in cloudinary')
+                    })
+            }else if(content.videoFHD){
+                    await cloudinary.api.delete_resources([content.videoFHD[0].public_id], {
+                        resource_type: 'video'
+                    },
+                         function (err, result) {console.log(result, err, 'deleted videoFHD in cloudinary')
+                        })
+                }else if(content.video2k){
+                        await cloudinary.api.delete_resources([content.video2k[0].public_id], {
+                            resource_type: 'video'
+                        },
+                             function (err, result) {console.log(result, err, 'deleted video2k in cloudinary')
+                            })
+                    }else if(content.video4k){
+                            await cloudinary.api.delete_resources([content.video4k[0].public_id], {
+                            resource_type: 'video'
+                        },
+                             function (err, result) {console.log(result, err, 'deleted video4k in cloudinary')
+                            })
+                        } else {
+                            return content
+                        }
+                        
+            await Content.findByIdAndDelete(req.params.id)
+            res.status(200).json({message: `The Content with id ${req.params.id} has been deleted.`, deleted: content});
         } catch (err) {
             res.status(500).json(err)
         }
-    } else {
-        //if the Content id is not the same as the one requested,
-        //then return this response 'You can only delete your account' 
-        res.status(403).json(`Only admin can make changes`)
-    }
+    // } else {
+    //     //if the Content id is not the same as the one requested,
+    //     //then return this response 'You can only delete your account' 
+    //     res.status(403).json(`Only admin can make changes`)
+    // }
 })
 
 //GET A Content
@@ -281,7 +552,7 @@ router.get('/find/:id', async (req, res) => {
 
 //GET ALL MOVIES
 
-router.get('/', verify, async (req, res) => {
+router.get('/', async (req, res) => {
         try {
             const content = await Content.find();
             res.status(200).json(content.reverse());  //.reverse sends the movies in from the last one created.

@@ -7,9 +7,9 @@ import verify from '../verifyToken.js'
 
 //CREATE A MOVIE-LIST
  
-router.post('/', verify, async (req, res) => {
+router.post('/', async (req, res) => {
     // if you are the admin
-    if (req.user.isAdmin) {
+    // if (req.user.isAdmin) {
         // insert new list.
         const newList = new List(req.body)
 
@@ -21,9 +21,9 @@ router.post('/', verify, async (req, res) => {
         } catch (err) {
             res.status(500).json(err)
         }
-    } else {
-        res.status(403).json(`Only admin can make changes`)
-    }
+    // } else {
+    //     res.status(403).json(`Only admin can make changes`)
+    // }
 })
 
 
@@ -31,9 +31,9 @@ router.post('/', verify, async (req, res) => {
 
 //DELETE A MOVIE-LIST
  
-router.delete('/:id', verify, async (req, res) => {
+router.delete('/:id', async (req, res) => {
     // if you are the admin
-    if (req.user.isAdmin) {
+    // if (req.user.isAdmin) {
         try {
             // fetch a list using it's id
             await List.findByIdAndDelete(req.params.id)
@@ -43,17 +43,17 @@ router.delete('/:id', verify, async (req, res) => {
             res.status(500).json(err)
             console.log(err.message)
         }
-    } else {
-        // else return "only admin can make changes"
-        res.status(403).json(`Only admin can make changes`)
-    }
+    // } else {
+    //     // else return "only admin can make changes"
+    //     res.status(403).json(`Only admin can make changes`)
+    // }
 })
 
 
 
 // GET MOVIE-LIST 
 
-router.get('/', verify, async (req, res) => {
+router.get('/', async (req, res) => {
     // assign a type and genre query
     const typeQuery = req.query.type;
     const genreQuery = req.query.genre;

@@ -1,8 +1,11 @@
 import mongoose from 'mongoose';
+const Schema = mongoose.Schema
 
-const MovieSchema = new mongoose.Schema({
+
+const MovieSchema = new Schema({
     title: {
     type: String,
+    unique: false
     },
     image: {
         type: Array
@@ -31,12 +34,19 @@ const MovieSchema = new mongoose.Schema({
      genre: {
          type: String
     },
-    content: {
-        type: Array
-    },
-    public_id: {
-        type: Array
-    },
+    // content:[
+        //  {contentId: 
+        //     {type: Schema.Types.ObjectId,ref: "Content"}
+        // } 
+        // ],
+    content: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Content'
+    
+    }],
+    // public_id: {
+    //     type: Array
+    // },
     isSeries: {
         type: Boolean,
         default: false,
@@ -50,36 +60,3 @@ const Movie = mongoose.model("Movie", MovieSchema)
 
 export default Movie;
 
-
-
-// title: {
-//     type: String,
-//     unique: true
-// },
-//  description: {
-//     type: String
-//  },
-//  image: {
-//     type: String
-//  },
-//  thumbnail: {
-//     type: String
-//  },
-//  trailer: {
-//     type: String
-//  },
-//  video: {
-//      type: String
-//  },
-//  year: {
-//      type: String
-//  },
-//  ageLimit: {
-//      type: Number
-//  },
-//  duration:{
-//      type: String
-//  },
-//  director: {
-//     type: String
-//  },

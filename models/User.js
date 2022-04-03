@@ -1,15 +1,19 @@
 import mongoose from 'mongoose';
+const Schema = mongoose.Schema
 
-const UserSchema = new mongoose.Schema({
+const UserSchema = new Schema({
+   username: {
+      type: 'string',
+   },
     phoneNumber: {
         type: Number,
         required: true,
-        unique: true
+        unique: false,
     },
      email: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
      },
      password: {
         type: String,
@@ -19,19 +23,21 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true,
      },
-     profilePicture: {
-        type: String,
-        default: ""
-     },
+     profilePicture: {       
+      type: Array,
+      },
+      about: {
+         type: String,
+      },
+     followers: Array,
+     following: Array,
+     _posts: [{
+      type: Schema.Types.ObjectId, 
+      ref: 'Post'
+  }],
      isAdmin: {
         type: Boolean,
         default: false
-     },
-     fullName: {
-        type: String
-     },
-     address: {
-        type: String
      },
 }, 
 {
