@@ -1,11 +1,12 @@
-import express from 'express'
-const router = express.Router();
 import Post from "../models/Post.js"
 import User from "../models/User.js"
 import Comment from '../models/Comments.js';
 import cloudinary from '../utils/cloudinary.js';
 import { storage, SUpload } from '../utils/cloud.js';
 import verify from '../verifyToken.js'
+import express from 'express'
+const router = express.Router();
+
 
 router.post('/',
 //  SUpload.array('image'), 
@@ -82,7 +83,7 @@ router.post('/',
 
 
 // timeline posts
-    router.get("/timeline/:userId", async(req, res) => {
+router.get("/timeline/:userId", async(req, res) => {
         const { userId } = req.params;
         try {
             //get a user by Id

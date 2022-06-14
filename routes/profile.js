@@ -1,11 +1,12 @@
-import express from 'express'
-const router = express.Router();
 import Post from "../models/Post.js"
 import User from "../models/User.js"
 import Comment from '../models/Comments.js';
 import cloudinary from '../utils/cloudinary.js';
 import { storage, SUpload } from '../utils/cloud.js';
 import verify from '../verifyToken.js'
+import express from 'express'
+const router = express.Router();
+
 
 
 //get your posts
@@ -13,7 +14,11 @@ router.get("/posts/user/:email", async (req, res) => {
     const { email } = req.params
     try{
         const user = await User.findOne({email : email})
-        const posts = await Post.find({ _creator: user._id }) 
+        const posts = await Post.find({ _creator: user._id })
+        .populate({
+            path: "_creator",
+            select: "email profilePicture username createdAt _id"
+        })
         res.status(200).json(posts)
     } catch (err) {
         res.status(500).json(err);

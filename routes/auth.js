@@ -1,9 +1,9 @@
-import express from 'express'
-const router = express.Router();
 import emailValidation from '../utils/validateEmail.js';
 import User from '../models/User.js'
 import CryptoJS from 'crypto-js';
 import jwt from 'jsonwebtoken'; 
+import express from 'express'
+const router = express.Router();
 
  //REGISTER
  router.post("/register", async (req, res) => {
@@ -53,6 +53,8 @@ import jwt from 'jsonwebtoken';
     try {
     const { email } = req.body
 
+    console.log("non working email:",email)
+
     
 
         if (!email || !req.body.password){
@@ -62,18 +64,18 @@ import jwt from 'jsonwebtoken';
 
         const user = await User.findOne({email})
         if ( !user ){
-            return res.json('Wrong password or email!');
+            return res.status(401).json({message: 'Wrong password or email!'});
         }
 
         const bytes = CryptoJS.AES.decrypt(user.password, process.env.SECRET_KEY);
         const originalPassword = bytes.toString(CryptoJS.enc.Utf8);
         if ( user ){
             if ( originalPassword !== req.body.password ) {
-            return res.status(401).json('Wrong email or password!')
+            return res.status(401).json({message: 'Wrong email or password!'})
             }  
         }
             const accessToken = jwt.sign({id: user._id, isAdmin: user.isAdmin},
-                process.env.SECRET_KEY, { expiresIn: '30d' })
+                process.env.SECRET_KEY, { expiresIn: '60' })
 
         // seperate the password from the rest of the data.
         const { confirmPassword, password, ...info} = user._doc;

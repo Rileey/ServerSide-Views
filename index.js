@@ -10,6 +10,12 @@ import contentRoute from './routes/content.js'
 import postRoute from './routes/post.js'
 import commentRoute from './routes/comment.js'
 import profileRoute from './routes/profile.js'
+import fs from 'fs'
+
+fs.writeFile('mynewfile3.txt', 'Hello content!', function (err) {
+    if (err) throw err;
+    console.log('Saved!');
+  });
 
 
 const app = express();
@@ -21,7 +27,7 @@ app.use(express.urlencoded({
     limit: '50mb',
     parameterLimit: 1000000,
     extended: false
-  }));
+}));
 
 mongoose.connect(process.env.MONGO_URL, {
     useNewUrlParser: true,
@@ -40,7 +46,7 @@ app.use("/api/comments", commentRoute);
 app.use("/api/profile", profileRoute);
 
 app.get('/', (req, res)=> {
-    res.send('I am a clown')
+    res.send('it is working')
 })
 
 

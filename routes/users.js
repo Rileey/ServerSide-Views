@@ -1,10 +1,12 @@
-import express from 'express'
-const router = express.Router();
 import User from '../models/User.js';
 import CryptoJS from 'crypto-js';
 import verify from '../verifyToken.js'
 import cloudinary from '../utils/cloudinary.js';
 import { storage, SUpload } from '../utils/cloud.js';
+import express from 'express'
+const router = express.Router();
+
+
 
 
 //UPDATE
@@ -14,7 +16,7 @@ SUpload.fields([{
     name: 'profilePicture', maxCount: 1
   }]), async (req, res) => {
     // if the your user id is the same as the the one you are requesting or you are the admin
-    const {userId, username, email, about, password} = req.body
+    let {userId, username, email, about, password} = req.body
     const {id} = req.params
      if (userId === id ) {
          //if the inputed password is the same, encrypt it
@@ -31,7 +33,9 @@ SUpload.fields([{
          
          try {
             let updatedUser = await User.findById(id)
-            //then fetch the user, using the user id.
+
+            
+            // then fetch the user, using the user id.
             if (req.files.profilePicture) {
                 await cloudinary.api.delete_resources([updatedUser.profilePicture
                     [0].public_id
@@ -55,6 +59,7 @@ SUpload.fields([{
                         email: email || updatedUser.email,
                         about: about || updatedUser.about,
                         profilePicture: profilePicture || updatedUser.profilePicture,
+                        password: password || updatedUser.password,
                      }
                     
                      //then fetch the user, using the user id.
@@ -78,14 +83,25 @@ SUpload.fields([{
 
             } else {
                 try {
+                    
                     //then fetch the user, using the user id.
-                    const updatedUser = await User.findByIdAndUpdate(id,
+                    let updatedUser = await User.findById(id)
+                    
+                    const data = {
+                        username: username || updatedUser.username,
+                        email: email || updatedUser.email,
+                        about: about || updatedUser.about,
+                        password: password || updatedUser.password,
+                    }
         
-                        // UPDATE FIRST
-                        {$set: req.body},
-                        
-                        //RETURN NEW USER
-                        {new: true});
+                    
+                    updatedUser = await User.findByIdAndUpdate(id, {
+                        $set: data,
+                     },
+                     //RETURN NEW USER
+                     {
+                         new: true
+                     });
                         return res.status(200).json({msg: `user has been updated`,data: updatedUser})
                 } catch (err) {
                     console.log(err.message)
@@ -102,81 +118,11 @@ SUpload.fields([{
 
 
 
-// //edit post
-// router.put('/:id', 
-// SUpload.fields([{
-//    name: 'video', maxCount: 1
-//  }]), async (req, res) => {
-       
-//    const { title, description, category } =  req.body
-
-
-//        try {
-
-//    let updatedPost = await Post.findById(req.params.id)
-
-//    if (req.files) {
-//        await cloudinary.api.delete_resources([updatedPost.video[0].public_id], {
-//            resource_type: 'video'
-//        },
-
-//            function (err, result) {console.log(result, err, 'video')
-//            })
-
-//            const video = []; // array to hold the image urls
-//            const files = req.files.video; // array of images
-//            for (const file of files) {
-//                const { path, filename } = file;
-//                video.push({
-//                    video: path,
-//                    public_id: filename
-//                });
-//            };
-
-//            updatedPost.video = video
-
-//            const data = {
-//                title: title || updatedPost.title,
-//                description: description || updatedPost.description,
-//                category: category || updatedPost.category,
-//                video: video || updatedPost.video,
-//             }
-
-//             updatedPost = await Post.findByIdAndUpdate(req.params.id, {
-//                $set: data,
-//             },
-//             //RETURN NEW USER
-//             {
-//                 new: true
-//             });
-//             return res.status(200).json({result: updatedPost});
-//            } else {
-//                try {
-//                    const updatedPost = await Post.findByIdAndUpdate(req.params.id,
-       
-//                        // UPDATE FIRST
-//                        {$set: req.body},
-                       
-//                        //RETURN NEW USER
-//                        {new: true});
-//                        return res.status(200).json(updatedPost)
-//                } catch (err) {
-//                    console.log(err.message)
-//                }
-//            }
-//         } catch (err) {
-//             res.status(500).json({message: err})
-//         }
-// }),
-
-
-
-
 //DELETE
 
-router.delete('/:id', verify, async (req, res) => {
+router.delete('/:id', async (req, res) => {
     // if the your user id is the same as the the one you are requesting or you are the admin
-    if (req.user.id === req.params.id || req.user.isAdmin) {
+    // if (req.user.id === req.params.id || req.user.isAdmin) {
         //fetch the user using the user id and delete the user.
         try {
             await User.findByIdAndDelete(req.params.id);
@@ -184,11 +130,12 @@ router.delete('/:id', verify, async (req, res) => {
         } catch (err) {
             res.status(500).json(err)
         }
-    } else {
-        //if the user id is not the same as the one requested or you are not the admin,
-        //then return this response 'You can only delete your account'
-        res.status(403).json(`You can delete only your account`)
-    }
+    // } 
+    // else {
+    //     //if the user id is not the same as the one requested or you are not the admin,
+    //     //then return this response 'You can only delete your account'
+    //     res.status(403).json(`You can delete only your account`)
+    // }
 })
 
 //GET
@@ -196,11 +143,19 @@ router.delete('/:id', verify, async (req, res) => {
 router.get('/find/:id', async (req, res) => {
     //fetch the user using the user id.
         try {
-            const user = await User.findById(req.params.id);
+            const user = await User.findById(req.params.id)
+            .populate({
+                path: "_posts",
+                select: "description video createdAt _id"
+            })
+            ;
 
             //single out the password and remove it from the rest of the information displayed.
-            const { password, ...info } = user._doc
+            const { 
+                // password, 
+                ...info } = user._doc
             //return the user's information
+            console.log(user.username)
             res.status(200).json(info);
         } catch (err) {
             //catch any errors.
@@ -257,6 +212,8 @@ router.put('/:id/unfollow', async (req, res) => {
     }
 })
 
+//
+
 
 
 
@@ -264,16 +221,15 @@ router.put('/:id/unfollow', async (req, res) => {
 //GET ALL
 
 router.get('/', async (req, res) => {
-    const query = req.query.new;
+    // const query = req.query.new;
     // if you are the admin
-        //get the user using the user id and delete the user.
         try {
             //fetch the last ten users if there is a query, if not fetch all users excluding you
-            const users = query ? await User.find().sort({_id: -1}).limit(5) : await User.find().populate({
+            const users = await User.find().populate({
                 path: "_posts",
-                select: "description createdAt _id"
+                select: "description video createdAt _id"
             })
-            res.status(200).json(users);
+            res.status(200).json(users)
         } catch (err) {
             res.status(500).json(err)
         }

@@ -1,13 +1,13 @@
-
-import express from 'express'
-import Content from '../models/Content.js';
-const router = express.Router();
 import Movie from '../models/Movie.js';
 import cloudinary from '../utils/cloudinary.js';
 // import Upload from '../utils/multer.js';
 import { storage, SUpload } from '../utils/cloud.js';
 // import cloudinary from '../utils/cloud.js';
 import verify from '../verifyToken.js'
+import express from 'express'
+import Content from '../models/Content.js';
+const router = express.Router();
+
 
 
 //CREATE A MOVIE

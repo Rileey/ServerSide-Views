@@ -4,6 +4,7 @@ const Schema = mongoose.Schema
 const UserSchema = new Schema({
    username: {
       type: 'string',
+      unique: true,
    },
     phoneNumber: {
         type: Number,
@@ -29,12 +30,12 @@ const UserSchema = new Schema({
       about: {
          type: String,
       },
-     followers: Array,
-     following: Array,
-     _posts: [{
-      type: Schema.Types.ObjectId, 
-      ref: 'Post'
-  }],
+      followers: Array,
+      following: Array,
+      _posts: [{
+         type: Schema.Types.ObjectId, 
+         ref: 'Post'
+      }],
      isAdmin: {
         type: Boolean,
         default: false
